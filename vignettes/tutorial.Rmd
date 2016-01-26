@@ -299,7 +299,7 @@ leaflet(data = trip) %>%
 We get "[Mapa de Cobertes](http://www.creaf.uab.es/mcsc/poligons4.htm)" from **uab.es**. Transform it...
 
 ```{r GetShape, message=F}
-Cob <- rgdal::readOGR(system.file("39322/", package="leaflettutoRial"),
+Cob <- rgdal::readOGR(devtools::install(build_vignettes = TRUE),
                       layer = "39322", verbose = FALSE)
 Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
 

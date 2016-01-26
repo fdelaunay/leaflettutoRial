@@ -1,5 +1,5 @@
 ## ---- eval=FALSE---------------------------------------------------------
-## devtools::install_github("rstudio/leaflet")
+## install.packages("leaflet")
 
 ## ----getAirports, echo=TRUE, cache=TRUE----------------------------------
   con <- curl::curl("https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat")
@@ -33,29 +33,33 @@ top01 <- left_join(top01, airports, by=c("source_id" = "id"))
 ## ----load, echo=TRUE-----------------------------------------------------
 library(leaflet)
 
-## ----map00, echo=FALSE, fig.height=6, message=FALSE----------------------
+## ----map00, echo=FALSE, message=FALSE------------------------------------
 leaflet(data = top01) %>% addMarkers(lat= ~lat, lng=~lng)
 
 ## ----map01, echo=FALSE, message=FALSE------------------------------------
 leaflet(data = top01) %>%
   addProviderTiles("Thunderforest.TransportDark") %>%
-  addMarkers(
-    clusterOptions = markerClusterOptions()
+  addMarkers(lat= ~lat
+             , lng=~lng
   )
 
 ## ----map02, message=FALSE------------------------------------------------
 leaflet(data = top01) %>%
   addTiles() %>%
-  addMarkers(
-    clusterOptions = markerClusterOptions()
-  )
+  addMarkers(lat= ~lat, lng=~lng)
 
 ## ----map03, message=FALSE------------------------------------------------
 leaflet(data = top01) %>%
   addTiles() %>% 
   addMarkers(
     clusterOptions = markerClusterOptions()
-    , popup = ~name
+  )
+
+## ----map03b, message=FALSE-----------------------------------------------
+leaflet(data = top01) %>%
+  addTiles() %>% 
+  addMarkers(
+    popup = ~name
   )
 
 ## ----map04, message=FALSE------------------------------------------------
@@ -142,7 +146,7 @@ leaflet(data = trip) %>%
 
 
 ## ----GetShape, message=F-------------------------------------------------
-Cob <- rgdal::readOGR(system.file("39322/", package="leaflettutoRial"),
+Cob <- rgdal::readOGR(devtools::install(build_vignettes = TRUE),
                       layer = "39322", verbose = FALSE)
 Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
 
@@ -154,6 +158,32 @@ leaflet(CascAntic) %>%
   addPolygons(
     stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
   )
+
+## ---- message=F----------------------------------------------------------
+Countries <- rgdal::readOGR(system.file("europe/", package="leaflettutoRial"),
+                      layer = "CNTR_RG_60M_2014", verbose = FALSE)
+Countries <- sp::spTransform(Countries, sp::CRS("+proj=longlat +datum=WGS84"))
+
+EU <- subset(Countries, CNTR_ID %in% c("DE", "AT", "BE", "BG", "CY", "HR", "DK", "SK", "SI", "ES", "EE", "FI", "FR", "EL", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "UK", "CZ", "RO", "SE"))
+
+## ------------------------------------------------------------------------
+EU@data$group <- "other"
+EU@data[EU@data$CNTR_ID == "DK", "group"] <- "ERM-II-member with opt-out"
+EU@data[EU@data$CNTR_ID == "UK", "group"] <- "U-member with opt-out"
+EU@data[EU@data$CNTR_ID %in% c("BG", "CZ", "HU", "PL", "RO", "SE"), "group"] <- "Non-euro area Member States"
+
+
+## ---- message=FALSE------------------------------------------------------
+factpal <- colorFactor("Blues", EU@data$group)
+
+leaflet(EU) %>%
+  addTiles() %>% 
+  addPolygons(
+    color = ~factpal(group)
+    ,stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
+  ) %>%
+  addLegend(pal = factpal, values = ~group, opacity = 1)
+
 
 ## ----getDistricts--------------------------------------------------------
 con <- curl::curl("https://cdn.rawgit.com/martgnz/bcn-geodata/master/barris/barris_geo.json")
