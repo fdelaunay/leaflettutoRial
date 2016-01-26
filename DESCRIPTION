@@ -12,5 +12,6 @@ Depends:
   sp,
   rgdal
 LazyData: TRUE
-Suggests: knitr
+Suggests: knitr,
+    rmarkdown
 VignetteBuilder: knitr

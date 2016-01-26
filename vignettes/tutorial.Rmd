@@ -1,0 +1,377 @@
+---
+title: "Leaflet tutorial"
+author: "F. Delaunay"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    css: vignette.css
+    fig_caption: yes
+    fig_height: 3
+    fig_width: 6
+vignette: >
+  %\VignetteIndexEntry{Leaflet tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+## What is leaflet?
+
+*Leaflet is the leading open-source JavaScript library for mobile-friendly interactive maps*
+
+
+- "*Leaflet is designed with simplicity, performance and usability in mind*" (easier than *Google Maps* and *OpenLayer* APIs)
+- an API, not a map provider
+- active community, numerous [extensions](http://leafletjs.com/plugins.html)
+
+http://leafletjs.com/
+
+## R HtmlWidgets
+
+**htmlwidget** brings *the best of JavaScript data visualization* to R.
+
+**leaflet** is one of these widgets.
+
+Other examples:
+
+   - [dygraph](http://www.htmlwidgets.org/showcase_dygraphs.html): to plot
+   and browse time series
+   - [DataTables = DT](http://www.htmlwidgets.org/showcase_datatables.html): to
+   print interactive html tables
+
+<br>
+<http://www.htmlwidgets.org>
+
+# Leaflet package
+
+## Installation
+
+
+To install this R package, run this command at your R prompt:
+
+```{r, eval=FALSE}
+install.packages("leaflet")
+```
+
+
+# Dataset
+
+## Airports...
+
+We'll play with Flights data made available by [OpenFlights](http://openflights.org/).
+
+<http://datahub.io/dataset/open-flights>
+
+First the list of all airports...
+
+```{r getAirports, echo=TRUE, cache=TRUE}
+  con <- curl::curl("https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat")
+
+  airports <- read.csv(con, header = F, col.names = c("id", "name", "city"
+     , "country", "FAA", "ICAO", "lat", "lng", "altitude", "timezone", "letter", "DST")
+     , stringsAsFactors = F)
+
+```
+
+
+## ...then the routes
+
+```{r getRoutes, echo=TRUE, warning=FALSE, cache=TRUE}
+  con <- curl::curl("https://raw.githubusercontent.com/jpatokal/openflights/master/data/routes.dat")
+
+  routes <- read.csv(con, header = F, col.names = c("airline", "airline_id", "source"
+    , "source_id", "destination", "destination_id", "codeshare", "stops", "equipment")
+    , stringsAsFactors = F)
+
+  routes$source_id <- as.integer(routes$source_id)
+  routes$destination_id <- as.integer(routes$destination_id)
+
+```
+
+## 1% airports with more routes
+
+```{r top01, echo=TRUE, message=F}
+library(dplyr)
+
+top01 <- routes %>%
+  group_by(source_id) %>%
+  summarise(nb_routes = n()) %>%
+  filter(percent_rank(nb_routes) >= 0.99)
+
+top01 <- left_join(top01, airports, by=c("source_id" = "id"))
+```
+
+## Library
+
+We load the library.
+
+```{r load, echo=TRUE}
+library(leaflet)
+```
+
+
+## First map
+
+```{r map00, echo=FALSE, message=FALSE}
+leaflet(data = top01) %>% addMarkers(lat= ~lat, lng=~lng)
+```
+
+
+## Base maps
+
+There is a [wide selection of *base maps* available](http://leaflet-extras.github.io/leaflet-providers/preview/index.html):
+  
+```{r map01, echo=FALSE, message=FALSE}
+leaflet(data = top01) %>%
+  addProviderTiles("Thunderforest.TransportDark") %>%
+  addMarkers(lat= ~lat
+             , lng=~lng
+  )
+```
+
+
+
+
+## Base maps
+
+By default the `OpenStreetMap` data is used:
+  
+```{r map02, message=FALSE}
+leaflet(data = top01) %>%
+  addTiles() %>%
+  addMarkers(lat= ~lat, lng=~lng)
+```
+
+
+## Clusters
+
+Markers can be grouped into clusters.
+
+```{r map03, message=FALSE}
+leaflet(data = top01) %>%
+  addTiles() %>% 
+  addMarkers(
+    clusterOptions = markerClusterOptions()
+  )
+```
+
+## Markers
+
+You can add pop-up to markers
+
+```{r map03b, message=FALSE}
+leaflet(data = top01) %>%
+  addTiles() %>% 
+  addMarkers(
+    popup = ~name
+  )
+```
+
+## Markers
+
+HTML is interpreted
+
+```{r map04, message=FALSE}
+
+## Markers
+leaflet(data = top01) %>%
+  setView(lng = -80, lat = 40, zoom = 4) %>% 
+  addTiles() %>% 
+  addMarkers(popup = ~paste0("<b>", name, " (", FAA, ")</b>"
+                             ,"<br>Nb route: ", nb_routes)
+  )
+```
+
+
+
+## Circle markers
+
+Size in pixel
+
+```{r map05, message=FALSE}
+leaflet(data = top01) %>%
+  addTiles() %>% 
+  setView(lng = 2, lat = 45, zoom = 4) %>% 
+  addCircleMarkers(popup = ~name
+                   , radius = ~nb_routes/30
+  )
+```
+
+## Circles
+
+Size in meter
+
+```{r map06, message=FALSE}
+leaflet(data = top01) %>%
+  addTiles() %>% 
+  setView(lng = 2, lat = 45, zoom = 4) %>% 
+  addCircles(popup = ~name
+             , radius = ~nb_routes*200
+  )
+```
+
+## Circle markers
+
+Size in pixel
+
+```{r map07, message=FALSE}
+leaflet(data = top01) %>%
+  addTiles() %>% 
+  setView(lng = 2, lat = 45, zoom = 4) %>% 
+  addCircleMarkers(popup = ~name
+                   , radius = ~nb_routes/30
+  )
+```
+
+
+## Colors
+
+Special method for building factorial and continuous palettes.
+
+```{r map08, message=FALSE}
+
+pal <- colorNumeric("RdYlBu", top01$nb_routes)
+
+leaflet(data = top01) %>%
+  addTiles() %>% 
+  setView(lng = 2, lat = 45, zoom = 4) %>% 
+  addCircleMarkers(popup = ~name
+                   , radius = ~nb_routes/30
+                   , color = ~pal(nb_routes)
+  )
+```
+
+
+## Colors
+
+Special method for building factorial and continuous palettes.
+
+```{r map09, message=FALSE}
+
+pal <- colorBin("RdYlBu", -log(top01$nb_routes), bins = 20, pretty = F)
+
+leaflet(data = top01) %>%
+  addTiles() %>% 
+  setView(lng = 2, lat = 45, zoom = 4) %>% 
+  addCircleMarkers(popup = ~name
+                   , radius = ~nb_routes/30
+                   , color = ~pal(-log(nb_routes))
+  )
+```
+
+
+## Colors
+
+Special method for building factorial and continuous palettes.
+
+```{r map10, message=FALSE}
+
+pal <- colorFactor("RdYlBu", top01$DST)
+
+leaflet(data = top01) %>%
+  addTiles() %>% 
+  setView(lng = 2, lat = 45, zoom = 4) %>% 
+  addCircleMarkers(popup = ~name
+                   , radius = ~nb_routes/30
+                   , color = ~pal(DST)
+  )
+```
+
+
+## Lines and shapes
+
+```{r map11, message=FALSE, warning=FALSE}
+
+trip <- data.frame(FAA = c("BCN", "LIS", "LPA", "DKR", "JNB", "EZE", "LIM"
+                           , "RDU", "SAN", "HNL", "HND", "LJG","HYD", "VCE", "BCN"))
+
+trip <- left_join(trip, airports, by="FAA")
+
+leaflet(data = trip) %>%
+  addTiles() %>% 
+  addMarkers(popup = ~FAA) %>% 
+  addPolylines(data=as.matrix(trip %>% select(lng, lat)))
+
+```
+
+## Shape files
+
+We get "[Mapa de Cobertes](http://www.creaf.uab.es/mcsc/poligons4.htm)" from **uab.es**. Transform it...
+
+```{r GetShape, message=F}
+Cob <- rgdal::readOGR(system.file("39322/", package="leaflettutoRial"),
+                      layer = "39322", verbose = FALSE)
+Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
+
+CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
+```
+
+...and plot it:
+
+```{r map12, message=FALSE}
+leaflet(CascAntic) %>%
+  addTiles() %>% 
+  addPolygons(
+    stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
+  )
+```
+
+# Shape files coloring
+
+Arturo's example!
+
+We download [the shape file](http://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units)
+_Copyright: EuroGeographics for the administrative boundaries_
+
+```{r, message=F}
+Countries <- rgdal::readOGR(system.file("europe/", package="leaflettutoRial"),
+                      layer = "CNTR_RG_60M_2014", verbose = FALSE)
+Countries <- sp::spTransform(Countries, sp::CRS("+proj=longlat +datum=WGS84"))
+
+EU <- subset(Countries, CNTR_ID %in% c("DE", "AT", "BE", "BG", "CY", "HR", "DK", "SK", "SI", "ES", "EE", "FI", "FR", "EL", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "UK", "CZ", "RO", "SE"))
+```
+
+add data:
+
+```{r}
+EU@data$group <- "other"
+EU@data[EU@data$CNTR_ID == "DK", "group"] <- "ERM-II-member with opt-out"
+EU@data[EU@data$CNTR_ID == "UK", "group"] <- "U-member with opt-out"
+EU@data[EU@data$CNTR_ID %in% c("BG", "CZ", "HU", "PL", "RO", "SE"), "group"] <- "Non-euro area Member States"
+
+```
+
+...and plot it:
+
+```{r, message=FALSE}
+factpal <- colorFactor("Blues", EU@data$group)
+
+leaflet(EU) %>%
+  addTiles() %>% 
+  addPolygons(
+    color = ~factpal(group)
+    ,stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
+  ) %>%
+  addLegend(pal = factpal, values = ~group, opacity = 1)
+
+```
+
+
+## JSON
+
+Get *district* form Barcelona...
+
+```{r getDistricts}
+con <- curl::curl("https://cdn.rawgit.com/martgnz/bcn-geodata/master/barris/barris_geo.json")
+geoData <- readLines(con) %>% paste(collapse = "\n")
+```
+
+...and map them:
+```{r map13}
+leaflet() %>% setView(lng = 2.17, lat = 41.37, zoom = 11) %>%
+  addTiles() %>%
+  addGeoJSON(geoData, weight = 3, color = "red", fill = FALSE, opacity = 0.5)
+```
+
+
+
