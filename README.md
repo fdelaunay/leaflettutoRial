@@ -11,3 +11,5 @@ vignette:
 ```r
 vignette("tutorial", package="leaflettutoRial")
 ```
+
+raw R script is available [here](https://github.com/fdelaunay/leaflettutoRial/blob/master/R/tutorial.R)
