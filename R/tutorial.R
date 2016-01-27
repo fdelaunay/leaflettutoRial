@@ -146,18 +146,18 @@ leaflet(data = trip) %>%
 
 
 ## ----GetShape, message=F-------------------------------------------------
-Cob <- rgdal::readOGR(devtools::install(build_vignettes = TRUE),
-                      layer = "39322", verbose = FALSE)
-Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
-
-CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
-
-## ----map12, message=FALSE------------------------------------------------
-leaflet(CascAntic) %>%
-  addTiles() %>% 
-  addPolygons(
-    stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
-  )
+# Cob <- rgdal::readOGR(devtools::install(build_vignettes = TRUE),
+#                       layer = "39322", verbose = FALSE)
+# Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
+# 
+# CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
+# 
+# ## ----map12, message=FALSE------------------------------------------------
+# leaflet(CascAntic) %>%
+#   addTiles() %>% 
+#   addPolygons(
+#     stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
+#   )
 
 ## ---- message=F----------------------------------------------------------
 # Countries <- rgdal::readOGR(system.file("europe/", package="leaflettutoRial"),
@@ -174,15 +174,15 @@ leaflet(CascAntic) %>%
 
 
 ## ---- message=FALSE------------------------------------------------------
-factpal <- colorFactor("Blues", EU@data$group)
-
-leaflet(EU) %>%
-  addTiles() %>% 
-  addPolygons(
-    color = ~factpal(group)
-    ,stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
-  ) %>%
-  addLegend(pal = factpal, values = ~group, opacity = 1)
+# factpal <- colorFactor("Blues", EU@data$group)
+# 
+# leaflet(EU) %>%
+#   addTiles() %>% 
+#   addPolygons(
+#     color = ~factpal(group)
+#     ,stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
+#   ) %>%
+#   addLegend(pal = factpal, values = ~group, opacity = 1)
 
 
 ## ----getDistricts--------------------------------------------------------

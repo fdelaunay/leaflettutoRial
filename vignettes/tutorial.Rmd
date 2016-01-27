@@ -328,21 +328,21 @@ leaflet(data = trip) %>%
 We get "[Mapa de Cobertes](http://www.creaf.uab.es/mcsc/poligons4.htm)" from **uab.es**. Transform it...
 
 ```{r GetShape, message=F}
-Cob <- rgdal::readOGR(system.file("39322/", package="leaflettutoRial"),
-                      layer = "39322", verbose = FALSE)
-Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
-
-CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
+# Cob <- rgdal::readOGR(system.file("39322/", package="leaflettutoRial"),
+#                       layer = "39322", verbose = FALSE)
+# Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
+# 
+# CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
 ```
 
 ...and plot it:
 
 ```{r map12, message=FALSE}
-leaflet(CascAntic) %>%
-  addTiles() %>% 
-  addPolygons(
-    stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
-  )
+# leaflet(CascAntic) %>%
+#   addTiles() %>% 
+#   addPolygons(
+#     stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
+#   )
 ```
 
 # Shape files coloring
@@ -353,35 +353,35 @@ We download [the shape file](http://ec.europa.eu/eurostat/web/gisco/geodata/refe
 _Copyright: EuroGeographics for the administrative boundaries_
 
 ```{r, message=F}
-Countries <- rgdal::readOGR(system.file("europe/", package="leaflettutoRial"),
-                      layer = "CNTR_RG_60M_2014", verbose = FALSE)
-Countries <- sp::spTransform(Countries, sp::CRS("+proj=longlat +datum=WGS84"))
-
-EU <- subset(Countries, CNTR_ID %in% c("DE", "AT", "BE", "BG", "CY", "HR", "DK", "SK", "SI", "ES", "EE", "FI", "FR", "EL", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "UK", "CZ", "RO", "SE"))
+# Countries <- rgdal::readOGR(system.file("europe/", package="leaflettutoRial"),
+#                       layer = "CNTR_RG_60M_2014", verbose = FALSE)
+# Countries <- sp::spTransform(Countries, sp::CRS("+proj=longlat +datum=WGS84"))
+# 
+# EU <- subset(Countries, CNTR_ID %in% c("DE", "AT", "BE", "BG", "CY", "HR", "DK", "SK", "SI", "ES", "EE", "FI", "FR", "EL", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "UK", "CZ", "RO", "SE"))
 ```
 
 add data:
 
 ```{r}
-EU@data$group <- "other"
-EU@data[EU@data$CNTR_ID == "DK", "group"] <- "ERM-II-member with opt-out"
-EU@data[EU@data$CNTR_ID == "UK", "group"] <- "U-member with opt-out"
-EU@data[EU@data$CNTR_ID %in% c("BG", "CZ", "HU", "PL", "RO", "SE"), "group"] <- "Non-euro area Member States"
+# EU@data$group <- "other"
+# EU@data[EU@data$CNTR_ID == "DK", "group"] <- "ERM-II-member with opt-out"
+# EU@data[EU@data$CNTR_ID == "UK", "group"] <- "U-member with opt-out"
+# EU@data[EU@data$CNTR_ID %in% c("BG", "CZ", "HU", "PL", "RO", "SE"), "group"] <- "Non-euro area Member States"
 
 ```
 
 ...and plot it:
 
 ```{r, message=FALSE}
-factpal <- colorFactor("Blues", EU@data$group)
-
-leaflet(EU) %>%
-  addTiles() %>% 
-  addPolygons(
-    color = ~factpal(group)
-    ,stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
-  ) %>%
-  addLegend(pal = factpal, values = ~group, opacity = 1)
+# factpal <- colorFactor("Blues", EU@data$group)
+# 
+# leaflet(EU) %>%
+#   addTiles() %>% 
+#   addPolygons(
+#     color = ~factpal(group)
+#     ,stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
+#   ) %>%
+#   addLegend(pal = factpal, values = ~group, opacity = 1)
 
 ```
 
