@@ -160,17 +160,17 @@ leaflet(CascAntic) %>%
   )
 
 ## ---- message=F----------------------------------------------------------
-Countries <- rgdal::readOGR(system.file("europe/", package="leaflettutoRial"),
-                      layer = "CNTR_RG_60M_2014", verbose = FALSE)
-Countries <- sp::spTransform(Countries, sp::CRS("+proj=longlat +datum=WGS84"))
-
-EU <- subset(Countries, CNTR_ID %in% c("DE", "AT", "BE", "BG", "CY", "HR", "DK", "SK", "SI", "ES", "EE", "FI", "FR", "EL", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "UK", "CZ", "RO", "SE"))
-
-## ------------------------------------------------------------------------
-EU@data$group <- "other"
-EU@data[EU@data$CNTR_ID == "DK", "group"] <- "ERM-II-member with opt-out"
-EU@data[EU@data$CNTR_ID == "UK", "group"] <- "U-member with opt-out"
-EU@data[EU@data$CNTR_ID %in% c("BG", "CZ", "HU", "PL", "RO", "SE"), "group"] <- "Non-euro area Member States"
+# Countries <- rgdal::readOGR(system.file("europe/", package="leaflettutoRial"),
+#                       layer = "CNTR_RG_60M_2014", verbose = FALSE)
+# Countries <- sp::spTransform(Countries, sp::CRS("+proj=longlat +datum=WGS84"))
+# 
+# EU <- subset(Countries, CNTR_ID %in% c("DE", "AT", "BE", "BG", "CY", "HR", "DK", "SK", "SI", "ES", "EE", "FI", "FR", "EL", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "UK", "CZ", "RO", "SE"))
+# 
+# ## ------------------------------------------------------------------------
+# EU@data$group <- "other"
+# EU@data[EU@data$CNTR_ID == "DK", "group"] <- "ERM-II-member with opt-out"
+# EU@data[EU@data$CNTR_ID == "UK", "group"] <- "U-member with opt-out"
+# EU@data[EU@data$CNTR_ID %in% c("BG", "CZ", "HU", "PL", "RO", "SE"), "group"] <- "Non-euro area Member States"
 
 
 ## ---- message=FALSE------------------------------------------------------
