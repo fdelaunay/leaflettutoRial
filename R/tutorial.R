@@ -146,6 +146,7 @@ leaflet(data = trip) %>%
 
 
 ## ----GetShape, message=F-------------------------------------------------
+
 tile <- "42022"
 download.file(paste0("http://www.creaf.uab.es/mcsc/shp4/", tile, ".zip")
               , destfile = paste0(tile, ".zip"))
@@ -157,11 +158,11 @@ Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
 CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
 
 ## ----map12, message=FALSE------------------------------------------------
-# leaflet(CascAntic) %>%
-#   addTiles() %>% 
-#   addPolygons(
-#     stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
-#   )
+leaflet(CascAntic) %>%
+  addTiles() %>%
+  addPolygons(
+    stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
+  )
 
 ## ---- message=F----------------------------------------------------------
 # Countries <- rgdal::readOGR(system.file("europe/", package="leaflettutoRial"),
