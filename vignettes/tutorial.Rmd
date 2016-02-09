@@ -342,11 +342,11 @@ CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
 ...and plot it:
 
 ```{r map12, message=FALSE}
-# leaflet(CascAntic) %>%
-#   addTiles() %>% 
-#   addPolygons(
-#     stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
-#   )
+leaflet(CascAntic) %>%
+  addTiles() %>%
+  addPolygons(
+    stroke = FALSE, fillOpacity = 0.5, smoothFactor = 0.5
+  )
 ```
 
 # Shape files coloring
