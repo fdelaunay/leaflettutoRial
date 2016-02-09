@@ -146,13 +146,17 @@ leaflet(data = trip) %>%
 
 
 ## ----GetShape, message=F-------------------------------------------------
-# Cob <- rgdal::readOGR(devtools::install(build_vignettes = TRUE),
-#                       layer = "39322", verbose = FALSE)
-# Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
-# 
-# CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
-# 
-# ## ----map12, message=FALSE------------------------------------------------
+tile <- "42022"
+download.file(paste0("http://www.creaf.uab.es/mcsc/shp4/", tile, ".zip")
+              , destfile = paste0(tile, ".zip"))
+unzip (paste0(tile, ".zip"), exdir = tile)
+
+Cob <- rgdal::readOGR(tile, layer = tile, verbose = FALSE)
+Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
+
+CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
+
+## ----map12, message=FALSE------------------------------------------------
 # leaflet(CascAntic) %>%
 #   addTiles() %>% 
 #   addPolygons(
@@ -165,8 +169,8 @@ leaflet(data = trip) %>%
 # Countries <- sp::spTransform(Countries, sp::CRS("+proj=longlat +datum=WGS84"))
 # 
 # EU <- subset(Countries, CNTR_ID %in% c("DE", "AT", "BE", "BG", "CY", "HR", "DK", "SK", "SI", "ES", "EE", "FI", "FR", "EL", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "UK", "CZ", "RO", "SE"))
-# 
-# ## ------------------------------------------------------------------------
+
+## ------------------------------------------------------------------------
 # EU@data$group <- "other"
 # EU@data[EU@data$CNTR_ID == "DK", "group"] <- "ERM-II-member with opt-out"
 # EU@data[EU@data$CNTR_ID == "UK", "group"] <- "U-member with opt-out"

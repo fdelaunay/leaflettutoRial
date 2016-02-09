@@ -328,11 +328,15 @@ leaflet(data = trip) %>%
 We get "[Mapa de Cobertes](http://www.creaf.uab.es/mcsc/poligons4.htm)" from **uab.es**. Transform it...
 
 ```{r GetShape, message=F}
-# Cob <- rgdal::readOGR(system.file("39322/", package="leaflettutoRial"),
-#                       layer = "39322", verbose = FALSE)
-# Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
-# 
-# CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
+tile <- "42022"
+download.file(paste0("http://www.creaf.uab.es/mcsc/shp4/", tile, ".zip")
+              , destfile = paste0(tile, ".zip"))
+unzip (paste0(tile, ".zip"), exdir = tile)
+
+Cob <- rgdal::readOGR(tile, layer = tile, verbose = FALSE)
+Cob <- sp::spTransform(Cob, sp::CRS("+proj=longlat +datum=WGS84"))
+
+CascAntic <- subset(Cob, C_COMPOSTA == "ucc")
 ```
 
 ...and plot it:
